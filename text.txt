@@ -72,27 +72,46 @@ class Restaurant:
 
 
 class Review:
-    def __init__(self, customer_id, restaurant_id, rating):
+    def __init__(self, customer, restaurant, rating):
         self.rating = rating
-        self.customer_id = customer_id
-        self.restaurant_id = restaurant_id
+        self.customer_id = None
+        self.restaurant_id = None
         self.id = None
 
+        if isinstance(customer, Customer):
+            self.customer = customer
+        else:
+            self.customer_id = customer
+
+        if isinstance(restaurant, Restaurant):
+            self.restaurant = restaurant
+        else:
+            self.restaurant_id = restaurant
+
     def save(self):
-        cursor.execute('''
-            INSERT INTO reviews (customer_id, restaurant_id, rating)
-            VALUES (?, ?, ?)
-        ''', (self.customer_id, self.restaurant_id, self.rating))
+        if not self.customer_id:
+            self.customer.save()
+            self.customer_id = self.customer.id
 
-        conn.commit()
-        self.id = cursor.lastrowid
+        if not self.restaurant_id:
+            self.restaurant.save()
+            self.restaurant_id = self.restaurant.id
 
-    @classmethod
-    def all(cls):
-        cursor.execute('SELECT * FROM reviews')
-        return [cls(row[1], row[2], row[3]) for row in cursor.fetchall()]
+        cursor
+.execute('''
+INSERT INTO reviews (customer_id, restaurant_id, rating)
+VALUES (?, ?, ?)
+''', (self.customer_id, self.restaurant_id, self.rating))
 
+sql
+Copy code
+    conn.commit()
+    self.id = cursor.lastrowid
 
+@classmethod
+def all(cls):
+    cursor.execute('SELECT * FROM reviews')
+    return [cls(Customer(row[1], row[2]), Restaurant(row[3]), row[4]) for row in cursor.fetchall()]
 customer1 = Customer("John", "Doe")
 customer2 = Customer("Jane", "Smith")
 restaurant1 = Restaurant("Pizza Palace")
@@ -103,35 +122,35 @@ customer2.save()
 restaurant1.save()
 restaurant2.save()
 
-review1 = Review(customer1.id, restaurant1.id, 4)
-review2 = Review(customer2.id, restaurant1.id, 5)
-review3 = Review(customer1.id, restaurant2.id, 3)
+review1 = Review(customer1, restaurant1, 4)
+review2 = Review(customer2, restaurant1, 5)
+review3 = Review(customer1, restaurant2, 3)
 
-# Save reviews to the database
+Save reviews to the database
 review1.save()
 review2.save()
 review3.save()
 
-# Print some information for verification
+Print some information for verification
 print("Reviews added to the database.")
 
-# Retrieving data
+Retrieving data
 all_customers = Customer.all()
 all_restaurants = Restaurant.all()
 all_reviews = Review.all()
 
-# Print the retrieved data
+Print the retrieved data
 print("\nAll Customers:")
 for customer in all_customers:
-    print(f"ID: {customer.id}, Given Name: {customer.given_name}, Family Name: {customer.family_name}")
+print(f"ID: {customer.id}, Given Name: {customer.given_name}, Family Name: {customer.family_name}")
 
 print("\nAll Restaurants:")
 for restaurant in all_restaurants:
-    print(f"ID: {restaurant.id}, Name: {restaurant.name}")
+print(f"ID: {restaurant.id}, Name: {restaurant.name}")
 
 print("\nAll Reviews:")
 for review in all_reviews:
-    print(f"ID: {review.id}, Customer ID: {review.customer_id}, Restaurant ID: {review.restaurant_id}, Rating: {review.rating}")
+print(f"ID: {review.id}, Customer ID: {review.customer.id}, Restaurant ID: {review.restaurant.id}, Rating: {review.rating}")
 
-# Close the connection
+Close the connection
 conn.close()
