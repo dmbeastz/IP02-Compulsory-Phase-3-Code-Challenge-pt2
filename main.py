@@ -49,7 +49,7 @@ class Customer:
     @classmethod
     def all(cls):
         cursor.execute('SELECT * FROM customers')
-        return [cls(*row[1:]) for row in cursor.fetchall()]  # Extract given_name and family_name
+        return [cls(*row[1:]) for row in cursor.fetchall()]  
 
 
 class Restaurant:
